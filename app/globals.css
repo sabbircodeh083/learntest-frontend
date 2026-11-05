@@ -1,0 +1,97 @@
+@import "tailwindcss";
+
+@custom-variant dark (&:where(.dark, .dark *));
+
+:root {
+  --bg: #ffffff;
+  --bg-soft: #f5f7f6;
+  --card: #ffffff;
+  --ink: #111827;
+  --muted: #5b6470;
+  --line: #e5e7eb;
+  --brand: #16a34a;
+  --brand-strong: #15803d;
+  --brand-soft: #eaf7ee;
+  --danger: #b91c1c;
+  --danger-soft: #fdf0f0;
+  --warn: #92400e;
+  --warn-soft: #fdf6e7;
+  --info-soft: #eef4ff;
+  --card-hover-shadow:
+    0 12px 28px -14px rgba(0, 0, 0, 0.34),
+    0 4px 10px -6px rgba(0, 0, 0, 0.14);
+}
+.dark {
+  --bg: #111315;
+  --bg-soft: #16181a;
+  --card: #1b1e20;
+  --ink: #f1f4f2;
+  --muted: #a7b0aa;
+  --line: #34383a;
+  --brand: #22c55e;
+  --brand-strong: #4ade80;
+  --brand-soft: #173324;
+  --danger: #f87171;
+  --danger-soft: #3a1d1d;
+  --warn: #fbbf24;
+  --warn-soft: #38300f;
+  --info-soft: #1d2a44;
+  --card-hover-shadow:
+    0 12px 28px -14px rgba(255, 255, 255, 0.18),
+    0 4px 10px -6px rgba(255, 255, 255, 0.08);
+}
+
+@theme inline {
+  --color-bg: var(--bg);
+  --color-soft: var(--bg-soft);
+  --color-card: var(--card);
+  --color-ink: var(--ink);
+  --color-muted: var(--muted);
+  --color-line: var(--line);
+  --color-brand: var(--brand);
+  --color-brandstrong: var(--brand-strong);
+  --color-brandsoft: var(--brand-soft);
+  --color-danger: var(--danger);
+  --color-dangersoft: var(--danger-soft);
+  --color-warn: var(--warn);
+  --color-warnsoft: var(--warn-soft);
+  --color-infosoft: var(--info-soft);
+  --font-sans: var(--font-jakarta), ui-sans-system, system-ui, sans-serif;
+  --font-display: var(--font-fraunces), Georgia, serif;
+}
+
+/* Card hover elevation: blackish in light mode, a soft white glow in dark mode. */
+.card-hover {
+  transition:
+    box-shadow 180ms ease,
+    border-color 180ms ease,
+    background-color 180ms ease,
+    color 180ms ease;
+}
+@media (hover: hover) {
+  .card-hover:not(:disabled):hover {
+    box-shadow: var(--card-hover-shadow);
+  }
+}
+
+html { color-scheme: light; }
+.dark { color-scheme: dark; }
+body { background: var(--bg); color: var(--ink); font-family: var(--font-jakarta), system-ui, sans-serif; }
+::selection { background: #16a34a; color: #fff; }
+:focus-visible { outline: 2px solid var(--brand); outline-offset: 2px; border-radius: 4px; }
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; }
+}
+input, select, textarea { font: inherit; }
+
+/* ---------- motion (commercial polish; disabled by prefers-reduced-motion above) ---------- */
+@keyframes lt-fade-in { from { opacity: 0; } to { opacity: 1; } }
+@keyframes lt-modal-in { from { opacity: 0; transform: translateY(10px) scale(0.97); } to { opacity: 1; transform: translateY(0) scale(1); } }
+@keyframes lt-toast-in { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
+@keyframes lt-fade-up { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+@keyframes lt-drawer-in { from { transform: translateX(40px); opacity: 0.4; } to { transform: translateX(0); opacity: 1; } }
+.animate-drawer-in { animation: lt-drawer-in 0.25s ease-out both; }
+.animate-fade-in { animation: lt-fade-in 0.18s ease-out both; }
+.animate-modal-in { animation: lt-modal-in 0.22s cubic-bezier(0.21, 1.02, 0.73, 1) both; }
+.animate-toast-in { animation: lt-toast-in 0.25s ease-out both; }
+.animate-fade-up { animation: lt-fade-up 0.35s ease-out both; }
