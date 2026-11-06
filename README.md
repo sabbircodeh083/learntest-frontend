@@ -35,6 +35,7 @@ NEXT_PUBLIC_API_BASE_URL=http://localhost:4000
 ```
 
 **Important:**
+
 - Only `NEXT_PUBLIC_*` variables are exposed to the browser
 - Never put secrets in `NEXT_PUBLIC_*` variables
 - Backend API URL is the only required frontend environment variable
@@ -87,6 +88,7 @@ Frontend/
 ### User Flow
 
 **New Users (Email/Password)**
+
 1. Sign up at `/sign-up`
 2. Choose student/teacher role during signup — this saves `roleSelected: true`
 3. Verify email (check inbox/spam); the link lands on `/sign-in?verified=1`
@@ -94,16 +96,18 @@ Frontend/
 5. Redirected straight to the chosen role's dashboard (no role prompt)
 
 **New Users (OAuth - Google/GitHub)**
+
 1. Click social login button at `/sign-in`
 2. Authorize with Google/GitHub
 3. **Role Selection**: Choose student or teacher at `/select-role`
 4. Redirected to role-specific dashboard
 
 **Returning Users**
+
 1. Sign in (email or OAuth)
 2. Automatically redirected to:
    - Students → `/student`
-   - Teachers → `/teacher`  
+   - Teachers → `/teacher`
    - Admins → `/admin`
 
 ### Role Selection
@@ -118,6 +122,7 @@ The `/select-role` page is shown **only while `roleSelected` is `false`**
 5. **Redirect** - Full page reload to role-specific workspace
 
 **Technical Implementation:**
+
 - Sign-in, `useRedirectIfSignedIn`, and `RoleGuard` all branch on `roleSelected`
   before resolving a role home
 - If `!user.roleSelected` → redirects to `/select-role`
@@ -182,12 +187,14 @@ The delete-account drawer in student/teacher settings:
 ## 📱 Pages & Routes
 
 ### Public Pages
+
 - `/` - Landing page with content discovery
 - `/sign-in` - Email/password & OAuth login
-- `/sign-up` - New account registration  
+- `/sign-up` - New account registration
 - `/reset-password` - Password reset flow
 
 ### Authenticated Pages
+
 - `/select-role` - Role selection while `roleSelected=false` (e.g. OAuth onboarding)
 - `/student/*` - Student dashboard & features
 - `/teacher/*` - Teacher studio & management
@@ -199,12 +206,12 @@ The delete-account drawer in student/teacher settings:
 All API calls go through `lib/api.ts`:
 
 ```typescript
-import { apiGet, apiPost, apiPut, apiPatch, apiDelete } from '@/lib/api';
+import { apiGet, apiPost, apiPut, apiPatch, apiDelete } from "@/lib/api";
 
 // Examples
-const profile = await apiGet('/api/v1/me');
-const video = await apiPost('/api/v1/videos', videoData);
-const updated = await apiPatch('/api/v1/me', { name: 'New Name' });
+const profile = await apiGet("/api/v1/me");
+const video = await apiPost("/api/v1/videos", videoData);
+const updated = await apiPatch("/api/v1/me", { name: "New Name" });
 ```
 
 ### API Client Features
@@ -221,12 +228,12 @@ const updated = await apiPatch('/api/v1/me', { name: 'New Name' });
 
 ```typescript
 try {
-  const data = await apiPost('/api/v1/endpoint', payload);
+  const data = await apiPost("/api/v1/endpoint", payload);
 } catch (error) {
   if (error instanceof ApiError) {
-    console.error(error.status);   // HTTP status code
-    console.error(error.code);     // Error code
-    console.error(error.message);  // User-friendly message
+    console.error(error.status); // HTTP status code
+    console.error(error.code); // Error code
+    console.error(error.message); // User-friendly message
   }
 }
 ```
@@ -234,6 +241,7 @@ try {
 ## 🎨 Styling & UI
 
 ### Tech Stack
+
 - **Framework**: Tailwind CSS 4
 - **Typography**: Plus Jakarta Sans (body), Fraunces (headings)
 - **Theme**: Light/dark mode support
@@ -243,6 +251,7 @@ try {
 ### UI Components
 
 Reusable components in `components/ui/`:
+
 - `Btn` - Buttons with variants
 - `Field` - Form fields with labels & errors
 - `Badge` - Status badges
@@ -296,6 +305,7 @@ npm run start
 ### Hosting Platforms
 
 Compatible with:
+
 - **Vercel** (recommended for Next.js)
 - **Netlify**
 - **AWS Amplify**
@@ -326,16 +336,29 @@ NEXT_PUBLIC_API_BASE_URL=https://api.yourdomain.com
 ### Common Issues
 
 **"Network Error" or API calls fail**
+
 - Backend not running (start with `cd ../Backend && npm run dev`)
 - Wrong `NEXT_PUBLIC_API_BASE_URL` in `.env.local`
 - CORS issues (check backend `CORS_ORIGINS`)
 
 **OAuth callback errors**
+
 - Callback URLs don't match in OAuth provider settings
 - Backend `BETTER_AUTH_URL` misconfigured
 - Frontend and backend on different protocols (http vs https)
 
+**Sign-in shows a JSON `NOT_FOUND` / "Route not found" page**
+
+- This is the API's 404 page. Social sign-in must call
+  `POST /api/auth/sign-in/social`; there is no
+  `GET /api/auth/sign-in/<provider>` route.
+- If the Google/GitHub button now shows an inline error instead, read it:
+  `Cross-site request blocked` / `INVALID_ORIGIN` means the backend does not
+  trust this frontend origin — add it to the backend's `CORS_ORIGINS`
+  (and `FRONTEND_URL`), then redeploy the API.
+
 **Role selection page appears repeatedly**
+
 - Confirm the `user` document has `roleSelected: true` after choosing a role
 - Manual signup should set `roleSelected: true` when a role is supplied
 - Clear browser cookies and try again
@@ -343,6 +366,7 @@ NEXT_PUBLIC_API_BASE_URL=https://api.yourdomain.com
 - Verify backend `getAuthDb` initialization order
 
 **Session/authentication issues**
+
 - Clear browser cookies
 - Check HttpOnly cookie settings
 - Verify `credentials: "include"` in API calls
@@ -353,18 +377,20 @@ Enable detailed logging:
 
 ```typescript
 // In lib/api.ts, uncomment:
-console.log('API Request:', method, path, init);
-console.log('API Response:', response);
+console.log("API Request:", method, path, init);
+console.log("API Response:", response);
 ```
 
 ## 📦 Dependencies
 
 ### Production
+
 - `next` - React framework with App Router
 - `react` - UI library
 - `react-dom` - React DOM renderer
 
 ### Development
+
 - `typescript` - Type safety
 - `tailwindcss` - CSS framework
 - `eslint` - Code linting
@@ -373,6 +399,7 @@ console.log('API Response:', response);
 ### No Additional Libraries
 
 This project uses:
+
 - ✅ Native fetch API (no axios)
 - ✅ Built-in React hooks (no external state management)
 - ✅ Tailwind CSS (no UI component library)
