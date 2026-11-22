@@ -6,6 +6,7 @@ import { ErrorBox, Loading, useToast } from "@/components/ui";
 import { apiPatch, apiUpload, ApiError } from "@/lib/api";
 import { useAuth } from "@/lib/auth";
 import { usePublicConfig } from "@/lib/hooks";
+import { hasAllowedExtension, imageExts, IMAGE_FORMAT_HINT } from "@/lib/uploads";
 import { AvatarImg, CoverBanner } from "@/components/profile";
 import type { UploadDoc } from "@/lib/types";
 
@@ -44,6 +45,7 @@ export default function EditTeacherProfilePage() {
   const { config } = usePublicConfig();
   const maxImageMB = config?.uploadLimits.image.sizeMB;
   const maxImageBytes = maxImageMB ? maxImageMB * 1024 * 1024 : null;
+  const imageExtList = imageExts(config);
 
   const [name, setName] = useState<string | null>(null);
   const [username, setUsername] = useState<string | null>(null);
@@ -102,7 +104,7 @@ export default function EditTeacherProfilePage() {
   // Local preview only — the file is uploaded when Save Changes is pressed.
   const pickImage = (file: File | undefined, kind: "avatar" | "cover") => {
     if (!file) return;
-    if (!/\.(png|jpe?g|webp)$/i.test(file.name)) { toast("Only PNG, JPG or WebP images are allowed.", "err"); return; }
+    if (!hasAllowedExtension(file.name, imageExtList)) { toast("That image format isn't supported.", "err"); return; }
     if (maxImageBytes && file.size > maxImageBytes) { toast(`Image must be under ${maxImageMB}MB.`, "err"); return; }
     const url = URL.createObjectURL(file);
     if (kind === "avatar") {
@@ -189,7 +191,7 @@ export default function EditTeacherProfilePage() {
                   <label className="absolute right-4 top-4 inline-flex cursor-pointer items-center gap-1.5 rounded-lg bg-card px-3.5 py-2 text-[13px] font-semibold shadow hover:bg-soft">
                     <svg viewBox="0 0 24 24" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round"><path d="M4 8h3l2-2h6l2 2h3v11H4z" /><circle cx="12" cy="13" r="3.2" /></svg>
                     Change Cover
-                    <input type="file" accept=".png,.jpg,.jpeg,.webp" className="hidden"
+                    <input type="file" accept={imageExtList.join(",")} className="hidden"
                       onChange={(e) => { pickImage(e.target.files?.[0], "cover"); e.target.value = ""; }} />
                   </label>
                 </div>
@@ -208,13 +210,13 @@ export default function EditTeacherProfilePage() {
                     <label aria-label="Change photo"
                       className="absolute bottom-0 right-0 z-10 flex h-7 w-7 cursor-pointer items-center justify-center rounded-full border border-line bg-card text-muted shadow hover:text-ink">
                       <svg viewBox="0 0 24 24" className="h-3.5 w-3.5" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round"><path d="M4 8h3l2-2h6l2 2h3v11H4z" /><circle cx="12" cy="13" r="3.2" /></svg>
-                      <input type="file" accept=".png,.jpg,.jpeg,.webp" className="hidden"
+                      <input type="file" accept={imageExtList.join(",")} className="hidden"
                         onChange={(e) => { pickImage(e.target.files?.[0], "avatar"); e.target.value = ""; }} />
                     </label>
                   </div>
                   <div>
                     <p className="text-[15px] font-semibold text-[#1d6ce0]">Change Photo</p>
-                    <p className="text-[13px] text-muted">{avatarPreview || coverPreview ? "Preview — applies when you Save Changes" : maxImageMB ? `JPG, PNG up to ${maxImageMB}MB` : "JPG, PNG (server limit applies)"}</p>
+                    <p className="text-[13px] text-muted">{avatarPreview || coverPreview ? "Preview — applies when you Save Changes" : maxImageMB ? `${IMAGE_FORMAT_HINT} up to ${maxImageMB}MB` : `${IMAGE_FORMAT_HINT} (server limit applies)`}</p>
                   </div>
                 </div>
               </section>

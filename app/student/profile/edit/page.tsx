@@ -7,6 +7,7 @@ import { apiPatch, apiUpload, ApiError } from "@/lib/api";
 import { safeExternalUrl } from "@/lib/url";
 import { useAuth } from "@/lib/auth";
 import { usePublicConfig } from "@/lib/hooks";
+import { hasAllowedExtension, imageExts, IMAGE_FORMAT_HINT } from "@/lib/uploads";
 import {
   AvatarImg,
   CoverBanner,
@@ -29,6 +30,7 @@ export default function StudentProfileEditPage() {
   const { config } = usePublicConfig();
   const maxImageMB = config?.uploadLimits.image.sizeMB;
   const maxImageBytes = maxImageMB ? maxImageMB * 1024 * 1024 : null;
+  const imageExtList = imageExts(config);
 
   const [name, setName] = useState("");
   const [username, setUsername] = useState("");
@@ -69,7 +71,7 @@ export default function StudentProfileEditPage() {
   // Local preview only — the file is uploaded when Save Changes is pressed.
   const pickImage = (file: File | undefined, kind: "avatar" | "cover") => {
     if (!file) return;
-    if (!/\.(png|jpe?g|webp)$/i.test(file.name)) { toast("Only PNG, JPG or WebP images are allowed.", "err"); return; }
+    if (!hasAllowedExtension(file.name, imageExtList)) { toast("That image format isn't supported.", "err"); return; }
     if (maxImageBytes && file.size > maxImageBytes) { toast(`Image must be under ${maxImageMB}MB.`, "err"); return; }
     const url = URL.createObjectURL(file);
     if (kind === "avatar") {
@@ -162,7 +164,7 @@ export default function StudentProfileEditPage() {
               <label className="absolute right-4 top-4 inline-flex cursor-pointer items-center gap-1.5 rounded-lg bg-card px-3.5 py-2 text-[13px] font-semibold shadow hover:bg-soft">
                 {cameraIcon}
                 Change Cover
-                <input type="file" accept=".png,.jpg,.jpeg,.webp" className="hidden"
+                <input type="file" accept={imageExtList.join(",")} className="hidden"
                   onChange={(e) => { pickImage(e.target.files?.[0], "cover"); e.target.value = ""; }} />
               </label>
             </div>
@@ -179,10 +181,10 @@ export default function StudentProfileEditPage() {
                 <label className="inline-flex cursor-pointer items-center gap-1.5 text-sm font-semibold text-[#1d6ce0] hover:underline">
                   {cameraIcon}
                   Change Photo
-                  <input type="file" accept=".png,.jpg,.jpeg,.webp" className="hidden"
+                  <input type="file" accept={imageExtList.join(",")} className="hidden"
                     onChange={(e) => { pickImage(e.target.files?.[0], "avatar"); e.target.value = ""; }} />
                 </label>
-                <p className="text-xs text-muted">{avatarPreview ? "Preview — applies when you Save Changes" : maxImageMB ? `JPG, PNG up to ${maxImageMB}MB` : "JPG, PNG (server limit applies)"}</p>
+                <p className="text-xs text-muted">{avatarPreview ? "Preview — applies when you Save Changes" : maxImageMB ? `${IMAGE_FORMAT_HINT} up to ${maxImageMB}MB` : `${IMAGE_FORMAT_HINT} (server limit applies)`}</p>
               </div>
             </div>
           </section>

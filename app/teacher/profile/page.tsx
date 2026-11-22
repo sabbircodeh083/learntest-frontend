@@ -8,6 +8,7 @@ import { safeExternalUrl } from "@/lib/url";
 import { useAuth } from "@/lib/auth";
 import { AvatarImg, CoverBanner } from "@/components/profile";
 import { useFetch, usePublicConfig } from "@/lib/hooks";
+import { hasAllowedExtension, imageExts } from "@/lib/uploads";
 import type { MyTestPage, Page, UploadDoc, Video } from "@/lib/types";
 
 type Tab = "overview" | "reviews";
@@ -72,9 +73,10 @@ export default function TeacherProfilePage() {
   const soon = (what: string) => toast(`${what} is coming soon.`);
   const goEdit = () => router.push("/teacher/profile/edit");
   const { config: pubConfig } = usePublicConfig();
+  const imageExtList = imageExts(pubConfig);
   const uploadAvatar = async (file: File | undefined) => {
     if (!file) return;
-    if (!/\.(png|jpe?g|webp)$/i.test(file.name)) { toast("Only PNG, JPG or WebP images are allowed.", "err"); return; }
+    if (!hasAllowedExtension(file.name, imageExtList)) { toast("That image format isn't supported.", "err"); return; }
     const maxMB = pubConfig?.uploadLimits.image.sizeMB;
     if (maxMB && file.size > maxMB * 1024 * 1024) { toast(`Image must be under ${maxMB}MB.`, "err"); return; }
     setUploading(true);
@@ -123,7 +125,7 @@ export default function TeacherProfilePage() {
                     className="absolute bottom-1 right-1 flex h-8 w-8 items-center justify-center rounded-full border border-line bg-card text-muted shadow hover:text-ink disabled:opacity-50">
                     <svg viewBox="0 0 24 24" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round"><path d="M4 8h3l2-2h6l2 2h3v11H4z" /><circle cx="12" cy="13" r="3.2" /></svg>
                   </button>
-                  <input ref={fileRef} type="file" accept=".png,.jpg,.jpeg,.webp" aria-label="Choose profile photo" className="hidden"
+                  <input ref={fileRef} type="file" accept={imageExtList.join(",")} aria-label="Choose profile photo" className="hidden"
                     onChange={(e) => { void uploadAvatar(e.target.files?.[0]); e.target.value = ""; }} />
                 </div>
                 <div className="min-w-0 flex-1">

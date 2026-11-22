@@ -30,6 +30,13 @@ export function useFetch<T>(loader: () => Promise<T>, deps: unknown[] = []) {
  *  these numbers, so changing .env changes the UI with no code edits. */
 export interface PublicConfig {
   uploadLimits: Record<"pdf" | "zip" | "video" | "image", { sizeMB: number; files: number }>;
+  /** Accepted extensions per kind, from the server's upload rules. */
+  uploadFormats: {
+    image: string[];
+    video: string[];
+    pdf: string[];
+    zip: string[];
+  };
   currencies: string[];
   defaultCurrency: string;
 }
